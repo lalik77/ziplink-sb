@@ -1,7 +1,10 @@
 package com.mami.ziplink.dtos;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import java.time.LocalDate;
 
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.PUBLIC_ONLY)
 public class ClickEventDTO {
   private LocalDate clickDate;
   private Long count;

@@ -2,4 +2,4 @@ spring:
   application:
     name: ziplink
   profiles:
-    active: ${SPRING_PROFILES_ACTIVE:dev}
+    active: ${SPRING_PROFILES_ACTIVE:prod}
