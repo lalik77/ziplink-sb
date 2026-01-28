@@ -2,6 +2,7 @@ package com.mami.ziplink.controller;
 
 import com.mami.ziplink.models.UrlMapping;
 import com.mami.ziplink.service.UrlMappingService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,8 +19,11 @@ public class RedirectController {
   }
 
   @GetMapping("/{shortUrl}")
-  public ResponseEntity<Void> redirect(@PathVariable String shortUrl){
-    UrlMapping urlMapping = urlMappingService.getOriginalUrl(shortUrl);
+  public ResponseEntity<Void> redirect(@PathVariable String shortUrl, HttpServletRequest request){
+    String clientIp = extractClientIp(request);
+    String userAgent = request.getHeader("User-Agent");
+
+    UrlMapping urlMapping = urlMappingService.getOriginalUrl(shortUrl, clientIp, userAgent);
     if (urlMapping != null) {
       HttpHeaders httpHeaders = new HttpHeaders();
       httpHeaders.add("Location", urlMapping.getOriginalUrl());
@@ -27,6 +31,18 @@ public class RedirectController {
     } else {
       return ResponseEntity.notFound().build();
     }
+  }
+
+  private String extractClientIp(HttpServletRequest request) {
+    String forwardedFor = request.getHeader("X-Forwarded-For");
+    if (forwardedFor != null && !forwardedFor.isBlank()) {
+      return forwardedFor.split(",")[0].trim();
+    }
+    String realIp = request.getHeader("X-Real-IP");
+    if (realIp != null && !realIp.isBlank()) {
+      return realIp;
+    }
+    return request.getRemoteAddr();
   }
 
 
