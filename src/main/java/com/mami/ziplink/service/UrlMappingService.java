@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
@@ -68,22 +68,25 @@ public class UrlMappingService {
         .toList();
   }
 
-  public List<ClickEventDTO> getClickEventsByDate(String shortUrl, LocalDateTime start, LocalDateTime end) {
+  public Optional<List<ClickEventDTO>> getClickEventsByDate(String shortUrl, LocalDateTime start, LocalDateTime end) {
     UrlMapping urlMapping = urlMappingRepository.findByShortUrl(shortUrl);
     if (urlMapping == null) {
-      throw new RuntimeException("UrlMapping is null");
-
+      return Optional.empty();
     }
-    return clickEventRepository.findByUrlMappingAndClickDateBetween(urlMapping, start, end).stream()
-        .collect(Collectors.groupingBy(click -> click.getClickDate().toLocalDate(), Collectors.counting()))
-        .entrySet().stream()
-        .map(entry -> {
+    List<ClickEventDTO> dtos = clickEventRepository
+        .findByUrlMappingAndClickDateBetween(urlMapping, start, end)
+        .stream()
+        .map(click -> {
           ClickEventDTO clickEventDTO = new ClickEventDTO();
-          clickEventDTO.setClickDate(entry.getKey());
-          clickEventDTO.setCount(entry.getValue());
+          clickEventDTO.setClickDate(click.getClickDate().toLocalDate());
+          // Each DTO represents a single click event
+          clickEventDTO.setCount(1L);
+          clickEventDTO.setClientIp(click.getClientIp());
+          clickEventDTO.setUserAgent(click.getUserAgent());
           return clickEventDTO;
-        }).collect(Collectors.toList());
-
+        })
+        .collect(Collectors.toList());
+    return Optional.of(dtos);
   }
 
   public Map<LocalDate, Long> getTotalClicksByUserAndDate(User user, LocalDate start, LocalDate end) {
@@ -96,9 +99,9 @@ public class UrlMappingService {
 
   }
 
-  public UrlMapping getOriginalUrl(String shortUrl) {
+  public UrlMapping getOriginalUrl(String shortUrl, String clientIp, String userAgent) {
     UrlMapping urlMapping = urlMappingRepository.findByShortUrl(shortUrl);
-    if(urlMapping != null) {
+    if (urlMapping != null) {
       urlMapping.setClickCount(urlMapping.getClickCount() + 1);
       urlMappingRepository.save(urlMapping);
 
@@ -106,6 +109,8 @@ public class UrlMappingService {
       ClickEvent clickEvent = new ClickEvent();
       clickEvent.setClickDate(LocalDateTime.now());
       clickEvent.setUrlMapping(urlMapping);
+      clickEvent.setClientIp(clientIp);
+      clickEvent.setUserAgent(userAgent);
       clickEventRepository.save(clickEvent);
     }
     return urlMapping;
