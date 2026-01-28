@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ziplink
+    password: postgres
+    username: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+jwt:
+  secret: 1368f8424edc1fefdd1762d7a0e719e49c1f677ffaf4ce717133d7700f63115d2458e340a54b6811d927077c1b02f43f7c762df20478a340029df9c9dfe02c88da5971e728474febba9e374f79dd993a6762cf354c6a7fc6f303e5e4f32c5af4a6971d638068f63568dce859dc0cb6d8cedcb888a08cd2f9b10dc0ee38876327544eb89796c20b567e017e06c29b4491d808980ef590bd35cd1a1920009407871e75037b09000f2c485950e242a9e651b22ee3f481cbbf6112962dca86394ebc72e3ff5a3ee3ff53f314d0c6310d5bcbe772fc8ec28457e4d29d2fdc2afd435fcfdc29dec47055a2a5abbd9ec8878015ad6589f63bcc439f97e3c8d5c04ba4d7
+  expiration: 172800000
+logging:
+  level:
+    org.springframework.security: DEBUG
+    com.mami.ziplink: DEBUG
+
+frontend:
+  url: http://localhost:5173

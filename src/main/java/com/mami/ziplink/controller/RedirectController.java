@@ -22,7 +22,6 @@ public class RedirectController {
   public ResponseEntity<Void> redirect(@PathVariable String shortUrl, HttpServletRequest request){
     String clientIp = extractClientIp(request);
     String userAgent = request.getHeader("User-Agent");
-
     UrlMapping urlMapping = urlMappingService.getOriginalUrl(shortUrl, clientIp, userAgent);
     if (urlMapping != null) {
       HttpHeaders httpHeaders = new HttpHeaders();
